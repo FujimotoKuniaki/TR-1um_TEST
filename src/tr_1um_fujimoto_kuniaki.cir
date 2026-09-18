@@ -1,8 +1,20 @@
-* Strict-port aligned reference netlist for TR-1um OpenSUSI
-* Top/subcircuit pin order aligned with the KLayout-extracted netlist.
 
 .subckt tr_1um_fujimoto_kuniaki P1 P10 P11 P12 P13 P14 P15 P2 P3 P4 P5 P6 P7 P9 VDD VSS
 x1 P2 P9 P12 P6 P10 P11 P13 P14 P4 P15 P7 P1 P3 P5 VDD VSS OSS_FRAME
+* neuron_top: sin_sel=P4 sin_dat=P2 clk=P1 mode=P5 fgmon=P12 q15out=P3 / CAL=P14 OUT=P13
+x2 P4 P2 P1 P5 P12 VDD VSS P3 fg neuron_top
+* calibration block: CAL=P14, OUT=P13
+MTHP vth fg VDD VDD PMOS w=20u l=5u
+MTHN vth fg VSS VSS NMOS w=5u l=5u
+MCALP vth P14 fg VDD PMOS w=5u l=5u
+MCALN vth calb fg VSS NMOS w=5u l=5u
+MCBP calb P14 VDD VDD PMOS w=20u l=5u
+MCBN calb P14 VSS VSS NMOS w=5u l=5u
+xinv VDD P13 vth VSS inv_ckb
+* TEG: NMOS gate=P6 drain=P7 / PMOS gate=P10 drain=P11 / CAP plate=P9 well=VSS
+MNT P7 P6 VSS VSS NMOS w=20u l=5u
+MPT P11 P10 VDD VDD PMOS w=20u l=5u
+XCT P9 VSS VSS F_CSIO x=111u y=110u A=12.21n P=442u
 .ends tr_1um_fujimoto_kuniaki
 
 .subckt OSS_FRAME P2 P9 P12 P6 P10 P11 P13 P14 P4 P15 P7 P1 P3 P5 VDD VSS
@@ -38,3 +50,117 @@ MXM2 VSS VSS VSS VSS NMOSE w=500u l=2u
 MXM1 PAD VDD VDD VDD PMOS w=500u l=2u
 MXM2 PAD VSS VSS VSS NMOSE w=500u l=2u
 .ends OSS_ESD_5V_ANA
+
+.subckt neuron_top sin_sel sin_dat clk mode fgmon vdd vss q15out fg
+xcore vdd vss mode q1 d1 q2 d2 q3 d3 q4 d4 q5 d5 q6 d6 q7 d7 fg q8 d8 q9 d9 q10 d10 q11 d11 q12 d12 q13 d13 q14 d14 q15out
++ d15 core15
+xjudge fg fgmon vdd vss judge
+xsr vdd sin_sel clk q3 q1 q2 vss q5 q4 q6 sin_dat d3 d1 d2 d5 d4 d6 q7 q9 q8 q11 q10 q12 q15out q14 q13
++ d7 d9 d8 d11 d10 d12 d15 d14 d13 shiftreg2
+.ends
+
+.subckt judge fg fgmon vdd vss
+MSF vdd fg fgmon vss NMOS w=20u l=5u
+MLD fgmon nb vss vss NMOS w=5u l=5u
+MDIO nb nb vss vss NMOS w=60u l=5u
+MB nb vss vdd vdd PMOS w=5u l=5u
+.ends
+
+.subckt core15 vdd vss mode q1 d1 q2 d2 q3 d3 q4 d4 q5 d5 q6 d6 q7 d7 fg q8 d8 q9 d9 q10 d10 q11 d11 q12 d12 q13 d13 q14 d14 q15
++ d15
+x1 vdd q1 mode vss d1 net1 in_block
+x2 vdd q2 mode vss d2 net2 in_block
+x3 vdd q3 mode vss d3 net3 in_block
+x4 vdd q4 mode vss d4 net4 in_block
+x5 vdd q5 mode vss d5 net5 in_block
+x6 vdd q6 mode vss d6 net6 in_block
+x7 vdd q7 mode vss d7 net7 in_block
+x8 vdd q8 mode vss d8 net8 in_block
+x9 vdd q9 mode vss d9 net9 in_block
+x10 vdd q10 mode vss d10 net10 in_block
+x11 vdd q11 mode vss d11 net11 in_block
+x12 vdd q12 mode vss d12 net12 in_block
+x13 vdd q13 mode vss d13 net13 in_block
+x14 vdd q14 mode vss d14 net14 in_block
+x15 vdd q15 mode vss d15 net15 in_block
+XXC1 fg net1 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC2 fg net2 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC3 fg net3 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC4 fg net4 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC5 fg net5 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC6 fg net6 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC7 fg net7 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC8 fg net8 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC9 fg net9 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC10 fg net10 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC11 fg net11 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC12 fg net12 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC13 fg net13 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC14 fg net14 vss F_CSIO x=111u y=110u A=12.21n P=442u
+XXC15 fg net15 vss F_CSIO x=111u y=110u A=12.21n P=442u
+.ends
+
+.subckt in_block vdd q mode vss d n4
+MXM1 net1 q vdd vdd PMOS w=160u l=5u
+MXM2 net2 mode net1 vdd PMOS w=160u l=5u
+MXM3 net2 q vss vss NMOS w=20u l=5u
+MXM4 net2 mode vss vss NMOS w=20u l=5u
+MXM5 net3 net2 vdd vdd PMOS w=80u l=5u
+MXM6 net3 net2 vss vss NMOS w=20u l=5u
+MXM7 n4 net3 d vss NMOS w=5u l=2u
+MXM8 n4 net2 d vdd PMOS w=5u l=2u
+.ends
+
+.subckt shiftreg2 vdd sin_sel clk sel3 sel1 sel2 vss sel5 sel4 sel6 sin_dat dat3 dat1 dat2 dat5 dat4 dat6 sel7 sel9 sel8 sel11
++ sel10 sel12 sel15 sel14 sel13 dat7 dat9 dat8 dat11 dat10 dat12 dat15 dat14 dat13
+x1 vdd sin_sel clk sel3 sel1 sel2 vss sel5 sel4 sel6 sel7 sel9 sel8 sel11 sel10 sel12 sel15 sel14 sel13 shiftreg15
+x2 vdd sin_dat clk dat3 dat1 dat2 vss dat5 dat4 dat6 dat7 dat9 dat8 dat11 dat10 dat12 dat15 dat14 dat13 shiftreg15
+.ends
+
+.subckt shiftreg15 vdd sin clk q3 q1 q2 vss q5 q4 q6 q7 q9 q8 q11 q10 q12 q15 q14 q13
+x1 vdd sin clk q1 clkb vss diff_cell
+x2 vdd q1 clk q2 clkb vss diff_cell
+x3 vdd q2 clk q3 clkb vss diff_cell
+x4 vdd q3 clk q4 clkb vss diff_cell
+x5 vdd q4 clk q5 clkb vss diff_cell
+x6 vdd q5 clk q6 clkb vss diff_cell
+x7 vdd q6 clk q7 clkb vss diff_cell
+x8 vdd q7 clk q8 clkb vss diff_cell
+x9 vdd q8 clk q9 clkb vss diff_cell
+x10 vdd q9 clk q10 clkb vss diff_cell
+x11 vdd q10 clk q11 clkb vss diff_cell
+x12 vdd q11 clk q12 clkb vss diff_cell
+x13 vdd q12 clk q13 clkb vss diff_cell
+x14 vdd q13 clk q14 clkb vss diff_cell
+x15 vdd q14 clk q15 clkb vss diff_cell
+x16 vdd clkb clk vss inv_ckb
+.ends
+
+.subckt diff_cell vdd d clk q clkb vss
+MXM1 d clkb m vss NMOS w=20u l=5u
+MXM2 s clkb nf vss NMOS w=20u l=5u
+MXM3 mb m vss vss NMOS w=20u l=5u
+MXM4 nf q vss vss NMOS w=20u l=5u
+MXM5 mf mb vss vss NMOS w=20u l=5u
+MXM6 q s vss vss NMOS w=20u l=5u
+MXM7 m clk mf vss NMOS w=20u l=5u
+MXM8 s clk mb vss NMOS w=20u l=5u
+MXM9 m clk d vdd PMOS w=20u l=5u
+MXM10 nf vdd mb vdd PMOS w=20u l=5u
+MXM11 mb m vdd vdd PMOS w=80u l=5u
+MXM12 mf vdd m vdd PMOS w=20u l=5u
+MXM13 mf mb vdd vdd PMOS w=80u l=5u
+MXM14 s clk nf vdd PMOS w=20u l=5u
+MXM15 m clkb mf vdd PMOS w=20u l=5u
+MXM16 nf q vdd vdd PMOS w=80u l=5u
+MXM17 s clkb mb vdd PMOS w=20u l=5u
+MXM18 q s vdd vdd PMOS w=80u l=5u
+.ends
+
+.subckt inv_ckb vdd clkb clk vss
+MXM1 clkb clk vss vss NMOS w=20u l=5u
+MXM2 clkb clk vdd vdd PMOS w=80u l=5u
+.ends
+
+
+.end
